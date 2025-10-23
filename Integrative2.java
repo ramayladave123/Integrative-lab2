@@ -34,7 +34,8 @@ public class Integrative2 {
         boolean useHardware = scanner.nextLine().trim().toLowerCase().equals("yes");
         Renderer renderer = useHardware ? new HardwareRenderer() : new SoftwareRenderer();
 
-        renderer.render(mediaLocation);
+        MediaPlayer player = new BasicMediaPlayer(renderer, mediaSource);
+        player.play();
     }
 }
 
@@ -123,5 +124,27 @@ class SoftwareRenderer implements Renderer {
     @Override
     public void render(String mediaName) {
         System.out.println("Software rendering for " + mediaName + ".");
+    }
+}
+
+// Decorator Pattern: MediaPlayer
+interface MediaPlayer {
+    void play();
+}
+
+class BasicMediaPlayer implements MediaPlayer {
+    private Renderer renderer;
+    private MediaSource source;
+
+    public BasicMediaPlayer(Renderer renderer, MediaSource source) {
+        this.renderer = renderer;
+        this.source = source;
+    }
+
+    @Override
+    public void play() {
+        renderer.render("media");
+        source.load();
+        System.out.println("Playing media.");
     }
 }
