@@ -30,7 +30,11 @@ public class Integrative2 {
                 return;
         }
 
-        System.out.println("Loaded media: " + mediaLocation + " from " + sourceType);
+        System.out.print("Use hardware rendering? (yes/no): ");
+        boolean useHardware = scanner.nextLine().trim().toLowerCase().equals("yes");
+        Renderer renderer = useHardware ? new HardwareRenderer() : new SoftwareRenderer();
+
+        renderer.render(mediaLocation);
     }
 }
 
@@ -100,5 +104,24 @@ class RemoteProxy implements MediaSource {
         }
         System.out.println("Caching remote stream...");
         realSource.load();
+    }
+}
+
+// Strategy Pattern: Renderer
+interface Renderer {
+    void render(String mediaName);
+}
+
+class HardwareRenderer implements Renderer {
+    @Override
+    public void render(String mediaName) {
+        System.out.println("Hardware rendering for " + mediaName + ".");
+    }
+}
+
+class SoftwareRenderer implements Renderer {
+    @Override
+    public void render(String mediaName) {
+        System.out.println("Software rendering for " + mediaName + ".");
     }
 }
