@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Integrative2 {
@@ -54,7 +56,23 @@ public class Integrative2 {
             player = new WatermarkDecorator(player);
         }
 
-        player.play();
+        // Create a simple playlist
+        Playlist mainPlaylist = new Playlist("My Favorites");
+        mainPlaylist.add(new Song(mediaLocation, mediaSource));
+        mainPlaylist.add(new Song("NextTrack.mp3", new LocalSource("NextTrack.mp3")));
+
+        Playlist subPlaylist = new Playlist("Top Hits");
+        subPlaylist.add(new Song("HitA.mp3", new LocalSource("HitA.mp3")));
+        subPlaylist.add(new Song("HitB.mp3", new LocalSource("HitB.mp3")));
+        mainPlaylist.add(subPlaylist);
+
+        // Display playlist
+        System.out.println("\n--- Playlist Overview ---");
+        mainPlaylist.display();
+
+        // Play the playlist
+        System.out.println("\n--- Currently Playing ---");
+        player.play(mainPlaylist);
     }
 }
 
@@ -148,7 +166,7 @@ class SoftwareRenderer implements Renderer {
 
 // Decorator Pattern: MediaPlayer
 interface MediaPlayer {
-    void play();
+    void play(Playable playable);
 }
 
 class BasicMediaPlayer implements MediaPlayer {
@@ -161,10 +179,9 @@ class BasicMediaPlayer implements MediaPlayer {
     }
 
     @Override
-    public void play() {
-        renderer.render("media");
-        source.load();
-        System.out.println("Playing media.");
+    public void play(Playable playable) {
+        renderer.render("playlist");
+        playable.play();
     }
 }
 
@@ -176,8 +193,8 @@ abstract class PlayerDecorator implements MediaPlayer {
     }
 
     @Override
-    public void play() {
-        decoratedPlayer.play();
+    public void play(Playable playable) {
+        decoratedPlayer.play(playable);
     }
 }
 
@@ -187,8 +204,8 @@ class SubtitleDecorator extends PlayerDecorator {
     }
 
     @Override
-    public void play() {
-        super.play();
+    public void play(Playable playable) {
+        super.play(playable);
         System.out.println("Subtitles activated.");
     }
 }
@@ -199,8 +216,8 @@ class EqualizerDecorator extends PlayerDecorator {
     }
 
     @Override
-    public void play() {
-        super.play();
+    public void play(Playable playable) {
+        super.play(playable);
         System.out.println("Equalizer activated.");
     }
 }
@@ -211,8 +228,64 @@ class WatermarkDecorator extends PlayerDecorator {
     }
 
     @Override
-    public void play() {
-        super.play();
+    public void play(Playable playable) {
+        super.play(playable);
         System.out.println("Watermark activated.");
+    }
+}
+
+// Composite Pattern: Playable
+interface Playable {
+    void play();
+    void display();
+}
+
+class Song implements Playable {
+    private String name;
+    private MediaSource source;
+
+    public Song(String name, MediaSource source) {
+        this.name = name;
+        this.source = source;
+    }
+
+    @Override
+    public void play() {
+        source.load();
+        System.out.println("Playing track: " + name);
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Track: " + name);
+    }
+}
+
+class Playlist implements Playable {
+    private String name;
+    private List<Playable> components = new ArrayList<>();
+
+    public Playlist(String name) {
+        this.name = name;
+    }
+
+    public void add(Playable component) {
+        components.add(component);
+    }
+
+    @Override
+    public void play() {
+        System.out.println("Starting playlist: " + name);
+        for (Playable component : components) {
+            component.play();
+        }
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Playlist: " + name);
+        for (Playable component : components) {
+            component.display();
+        }
     }
 }
