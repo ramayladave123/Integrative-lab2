@@ -34,7 +34,26 @@ public class Integrative2 {
         boolean useHardware = scanner.nextLine().trim().toLowerCase().equals("yes");
         Renderer renderer = useHardware ? new HardwareRenderer() : new SoftwareRenderer();
 
+        System.out.print("Activate subtitles? (yes/no): ");
+        boolean useSubtitles = scanner.nextLine().trim().toLowerCase().equals("yes");
+
+        System.out.print("Activate equalizer? (yes/no): ");
+        boolean useEqualizer = scanner.nextLine().trim().toLowerCase().equals("yes");
+
+        System.out.print("Activate watermark? (yes/no): ");
+        boolean useWatermark = scanner.nextLine().trim().toLowerCase().equals("yes");
+
         MediaPlayer player = new BasicMediaPlayer(renderer, mediaSource);
+        if (useSubtitles) {
+            player = new SubtitleDecorator(player);
+        }
+        if (useEqualizer) {
+            player = new EqualizerDecorator(player);
+        }
+        if (useWatermark) {
+            player = new WatermarkDecorator(player);
+        }
+
         player.play();
     }
 }
@@ -146,5 +165,54 @@ class BasicMediaPlayer implements MediaPlayer {
         renderer.render("media");
         source.load();
         System.out.println("Playing media.");
+    }
+}
+
+abstract class PlayerDecorator implements MediaPlayer {
+    protected MediaPlayer decoratedPlayer;
+
+    public PlayerDecorator(MediaPlayer decoratedPlayer) {
+        this.decoratedPlayer = decoratedPlayer;
+    }
+
+    @Override
+    public void play() {
+        decoratedPlayer.play();
+    }
+}
+
+class SubtitleDecorator extends PlayerDecorator {
+    public SubtitleDecorator(MediaPlayer decoratedPlayer) {
+        super(decoratedPlayer);
+    }
+
+    @Override
+    public void play() {
+        super.play();
+        System.out.println("Subtitles activated.");
+    }
+}
+
+class EqualizerDecorator extends PlayerDecorator {
+    public EqualizerDecorator(MediaPlayer decoratedPlayer) {
+        super(decoratedPlayer);
+    }
+
+    @Override
+    public void play() {
+        super.play();
+        System.out.println("Equalizer activated.");
+    }
+}
+
+class WatermarkDecorator extends PlayerDecorator {
+    public WatermarkDecorator(MediaPlayer decoratedPlayer) {
+        super(decoratedPlayer);
+    }
+
+    @Override
+    public void play() {
+        super.play();
+        System.out.println("Watermark activated.");
     }
 }
